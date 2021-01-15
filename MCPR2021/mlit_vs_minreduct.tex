@@ -20,7 +20,7 @@
 \begin{document}
 \mainmatter              % start of the contributions
 %
-\title{MLIT vs. Minreduct: a comparative study.}
+\title{MiLIT vs. Minreduct: a comparative study.}
 			 
 \author{Vlad\'{i}mir Rodr\'{i}guez--Diez\inst{1,2} \and Jos\'{e}~Fco. Mart\'{i}nez--Trinidad\inst{3}
 		 \and J.~Ariel Carrasco--Ochoa\inst{3} \and Manuel~S.~Lazo--Cortés\inst{3} \and J. Arturo Olvera--López\inst{1}}
@@ -42,113 +42,189 @@
 \maketitle              % typeset the title of the contribution
 
 \begin{abstract}
-	Rough set reducts are irreducible subsets of attributes preserving discernibility information of an decision system. Computing all reducts has exponential complexity regarding the number of attributes in the decision system. Given the high computational cost of this task, computing only the reducts of minimum length (the shortest reducts) becomes relevant for a wide range of applications. Two recent algorithms have been reported, almost simultaneously, for computing this irreducible subsets of attributes with minimum length: MLIT and Minreduct. MLIT was designed in the top of the Testor Theory while Minreduct comes from the Rough Set Theory. Both algorithms are intended to solve an equivalent algorithmic task. Thus, in this paper we present a comparative study of these algorithm in terms of asymptotic complexity and runtime performance. 
+	Rough set reducts are irreducible subsets of attributes preserving discernibility information of an decision system. Computing all reducts has exponential complexity regarding the number of attributes in the decision system. Given the high computational cost of this task, computing only the reducts of minimum length (the shortest reducts) becomes relevant for a wide range of applications. Two recent algorithms have been reported, almost simultaneously, for computing this irreducible subsets of attributes with minimum length: MiLIT and Minreduct. MiLIT was designed in the top of the Testor Theory while Minreduct comes from the Rough Set Theory. Both algorithms are intended to solve an equivalent algorithmic task. Thus, in this paper we present a comparative study of these algorithm in terms of asymptotic complexity and runtime performance. 
 	
 \keywords{Typical Testor, Reduct, minimum--length, shortest}
 \end{abstract}
 %
 \section{Introduction}
 %
-	% Que son los TT, de donde vienen y cual es el problema de calcularlos
+	Rough Set Theory (RST)~\cite{Pawlak82} Reducts are minimal subsets of attributes preserving the discernibility capacity of the whole set of attributes \cite{Pawlak91}. Reducts have been found useful for feature selection~\cite{Nguyen2016,Alwesabi2016}, attribute relevance evaluation~\cite{Inuiguchi2017} and classification~\cite{Ishii2018,Own2015} among others. The main drawback of reducts is that computing the complete set of reducts for a decision system is an NP--hard problem~\cite{Skowron92}. However, most of the times, only a subset of reducts is sufficient for real applications~\cite{Zheng14,Jiang15}. The set of all the reducts with the minimum length (the shortest reducts) is particularly relevant for such applications, since it is a representative sample of all reducts~\cite{Susmaga1998}. Recently, the new algorithm Minreduct, for computing all the shortest reducts, was reported~\cite{rodriguez20}. Although the problem of computing all the shortest reducts of a decision system is also NP--hard, it is usually significantly faster than computing all reducts.
 	
-	Testors were originally created by Cheguis and Yablonskii \cite{Cheguis55} as a tool for analysis of problems connected with control and diagnosis of faults in electronic circuits.  Within Testor Theory, typical testors are irreducible subsets of attributes preserving the object discernibility ability of the original set of attributes. Thus, typical testors have been used for feature selection as shown in \cite{Dmitriev1966,Ruiz08}. Typical testors are needed for solving some real--world applications. For instance, in~\cite{Torres2014} the informational weight is used to identify risk factors on transfusion, related to acute lung injury; and to establish an assessment for each attribute. 
+	Testor Theory~\cite{Cheguis55} separately developed the concept of Typical Testor. Typical Testor and Reduct concepts are so close~\cite{Chikalov2013}, that algorithms designed for computing typical testors can be used for computing reducts and vice versa~\cite{Lazo15}. Typical testors have been used for feature selection~\cite{Dmitriev1966,Ruiz08} and some other real--world applications~\cite{Torres2014}. Since computing all typical testors is also NP--hard, a significant runtime reduction, can be obtained from computing only the set of all the minimum--length typical testors. For this purpose, the MiLIT algorithm was recently published~\cite{Piza20}. The authors reported indeed two variants of MiLIT: the first one using an in-place search based on Next
+	Combination calculation (NC) and the other one using a search with Pruning based on Feature and
+	Row Contributions (PFRC).
 	
-	Unfortunately, computing all typical testors from a dataset has exponential complexity regarding its number of attributes. Thus, the development of fast algorithms for typical testor computation have been an active research topic for more than three decades. One of the first algorithms for finding all typical testors, was proposed in \cite{Ruiz85} and modified in \cite{sanchez02}. This algorithm, called BT, codifies a subset of attributes as a binary word, and evaluates candidate subsets in the natural ascending order induced by the binary numbers.  In \cite{Shulcloper95b} the REC algorithm was presented. REC works directly over the dataset, handling a huge amount of superfluous information. Then, the CER algorithm~\cite{Ayaquica97}, overcomes this drawback and uses a different traversing order. Later, a new algorithm called LEX~\cite{Santiesteban03} was introduced. The key point of LEX was its new traversing order of candidates that resembles the lexicographical order in which character strings are compared. This traversing order was also followed by the subsequent reported algorithms: CT\_EXT~\cite{Sanchez07} and BR~\cite{Lias09}. The most recent algorithms reported for typical testor computation are the newest versions of these two algorithms: fast--CT\_EXT~\cite{Sanchez10} and fast--BR~\cite{Lias13}.
-	
-	% Relación con los trabajos de reductos
-	
-	Recently, reducts from the Rough Set Theory (RST) have been related to typical testors~\cite{Chikalov2013}. RST was proposed by Z. Pawlak in 1981 \cite{Pawlak81} as a mathematical theory to deal with imperfect knowledge, in particular with vague concepts. In~\cite{Lazo15}, it was proven that algorithms for reduct computation can be applied to typical testor computation, since these two concepts are equivalent for consistent datasets. In~\cite{Rodriguez2018}, the GCreduct algorithm for reduct computation was presented and it was evaluated against fast--CT\_EXT and fast--BR. In this work, it was concluded that GCreduct outperforms fast--CT\_EXT in all cases.
 	
 	% En este trabajose presenta un estudio...
 	
-	It is a well known fact that there is not one unique algorithm for computing typical testors having the best performance for every given problem. Most algorithms for computing typical testors operate over the basic matrix. The basic matrix is a reduced binary matrix representing the discernibility information of the dataset. Former studies~\cite{Lias13,Rodriguez15}, have performed experiments by categorizing the  basic matrices according to their density of 1's; i.e. the number of ones divided by the total number of cells of the matrix. In~\cite{Gonzalez15} it was concluded that  the performance of the algorithms for computing typical testors is related to the number of rows, the density of 1's and the number of typical testors of the basic matrix. In~\cite{Rodriguez2017} it was detailed a procedure for evaluating these algorithms over a synthetic sample of basic matrices with the same dimension and different density of 1's. This procedure was also followed in~\cite{Rodriguez2018}. As a next step, in this work, we present an experimental study on the effects of the basic matrix dimensions on the performance of the algorithms for typical testor computation. For our experiments we have selected fast--BR and GCreduct, since these algorithms are the most recent and fastest algorithms reported for typical testor (reduct) computation. The selected algorithms are first executed over a sample of synthetic basic matrices, and the conclusions drawn from this experiment are corroborated over real--world datasets taken from the UCI machine learning repository~\cite{Bache13}. 	
+	The almost simultaneous publication of these algorithms that solve an equivalent problem deserves a comparative study. Thus, in this work, we present such a study with the aim of providing an application guidance and some foundations for the development future algorithms. To this end, we will first provide a common theoretical framework for describing the algorithms under study. Then, a comparison in terms of asymptotic complexity will be presented. Finally, an experimental assessment of the three algorithms is carried out over synthetic and real--world decision systems. 
 	
 	% Estructura del documento
-	
-	The rest of this paper is structured in the following way. In Section~\ref{tb}, some basic concepts from Testor Theory are introduced and the pruning properties for typical testor computation are presented. In Section~\ref{Algs}, we describe both algorithms: GCreduct and fast--BR. Then, in Section~\ref{evaluation}, we present our experimental study and we discuss the results. Finally, our conclusions appear in Section~\ref{conclusions}.
-	
-	
-
-					
+	%TODO arreglar las referencias a las secciones
+	The rest of this paper is structured in the following way. In Section~\ref{tb}, some basic concepts from RST and the theoretical basis of the pruning properties used by the algorithms under study are presented. In Section~\ref{Algs}, we describe the algorithms with an special emphasis in their asymptotic complexity. Then, in Section~\ref{evaluation}, we present our experimental assessment and we discuss the results. Finally, our conclusions appear in Section~\ref{conclusions}.
+						
 %
 \section{Theoretical background} \label{tb}
 %
 
-In this section, we introduce the main concepts of Testor Theory, as well as the definitions and propositions supporting the pruning strategies used in GCreduct and fast--BR. 
+	In this section, we introduce the main concepts of Rough Set Theory, as well as the definitions and propositions supporting the pruning strategies used in Minreduct and MiLIT. Notice that although MiLIT algorithms are designed in the top of Testor Theory, we will use concepts from Rough Set Theory for describing these algorithms.
 
 %
 \subsection{Basic Concepts} \label{basic_concetps}
 %
+	In RST, a decision system ($DS$) is a table with rows representing objects while columns represent attributes. We denote by $U$ a finite non-empty set of objects $U=\lbrace x_1,x_2,...,x_n\rbrace$ and $A$ is a finite non-empty set of attributes. For every attribute in $A$ there is a mapping: $a: U \rightarrow V_a$. The set $V_a$ is called the \textit{value set} of $a$. Attributes in $A$ are further divided into condition attributes $C$ and decision attributes $D$ such that $A=C \cup D$. 
 
-Let $DS$ be a dataset with $k$ objects described by $n$ attributes and grouped into $r$ classes. Every attribute in the set of attributes $R=\lbrace x_1,...,x_n \rbrace$, has a predefined Boolean comparison criterion. Let $DM$ be the binary comparison matrix obtained from comparing every pair of objects in $DS$ belonging to different classes. Every comparison of a pair of objects adds a row to $DM$ with 0=equal,1=different in the corresponding attribute position (column). $DM$ has $m$ rows and $n$ columns. Comparisons generating a row with only 0's, hereinafter referred to as empty row, imply that two objects from different classes are equal according to their attribute values. 
+	Decision attributes $D$ induce a partition of the universe $U$ into equivalence classes. Usually, we are interested in those classes induced by $B$ that correspond to the decision classes. To this end, the \textit{B-positive region of D}, denoted as $POS_B(D)$, is defined as the set of all objects in $U$ such that if two of them have the same value for every attribute in B, they belong to the same decision class.
 
-\begin{definition}\label{def:testor}
-	Let $T \subseteq R$ be a subset of attributes from $DS$. T is a testor of DS (or DM) if in the sub-matrix of DM formed by the columns corresponding to attributes in T, there is not any empty row.
-\end{definition} 	
+	A subset $B \subseteq C$ is a decision \textit{reduct} of $DS$ relative to $D$ if
+	\begin{enumerate}
+		\item $POS_B(D)=POS_C(D)$. \label{cond_1}
+		\item $B$ is a minimal subset (with respect to inclusion) satisfying condition~\ref{cond_1}.\label{cond_2}
+	\end{enumerate}
 
-Usually the number of rows in $DM$ ($m$) is large. In~\cite{Lazo01} a reduction of $DM$ without loss of relevant information was proposed, and in~\cite{Piza17} it was proved that this reduced matrix, called \textit{basic matrix} ($BM$), and $DM$; have the same set of testors. Then, we can substitute $DM$ by $BM$ in the definition~\ref{def:testor} without any loss of generality. 	
+	Decision reducts have the same capability as the complete set of condition attributes for discerning between objects from different classes (Condition~\ref{cond_1}), and every attribute in a reduct (typical testor) is indispensable for holding Condition~\ref{cond_1} (Condition~\ref{cond_2}). A super--reduct (testor) is a set $B$ that satisfies Condition~\ref{cond_1}, regardless of Condition~\ref{cond_2}. Decision reducts are called just reducts, for simplicity.
 
-\begin{definition}\label{def:TT}
-	A subset of attributes $T \subseteq R$ is a typical testor in BM iff T is a testor and $\forall x_i \in T, T \setminus x_i$ is not a testor. 
-\end{definition}
+	The \textit{Binary Discernibility Matrix} is a binary table representing the discernibility information of objects belonging to different classes. The element $m(i, j, c)$ regarding two objects $x_i$ and $x_j$ and a single condition attribute $c \in C$ is defined as:
+
+	\begin{equation*}
+		m(i, j, c)=\left\lbrace\begin{array}{cl}
+		1 & \mathrm{if~~}c(x_i) \neq c(x_j) \\
+		0 								   & \mathrm{otherwise} 
+		\end{array}\right.
+	\end{equation*} 
+
+	The \textit{Simplified Binary Discernibility Matrix} is a reduced version of the binary discernibility matrix after applying absorption laws. In Testor Theory~\cite{Lazo01} this concept is called \textit{Basic Matrix}, and we will adopt this term for the rest of this document, since it simple and explicit. From the basic matrix of a decision system all reducts can be computed~\cite{Yao09}.
 
 %	
-\subsection{Pruning properties for typical testor computation}
+\subsection{Pruning properties used by the algorithms under study}
 %
-
-	The concept of contribution presented in Definition~\ref{def:contrib} is a key aspect for both algorithms: GCreduct and fast--BR. 	
+	The reader can find the proof and a more detailed explanation of the following propositions in~\cite{rodriguez20,Piza20}. 
 	
-	\begin{definition}\label{def:contrib}
-		Given $T \subseteq R$ and $x_i \in R$ such that $x_i \notin T$. $x_i$ contributes to T iff the sub-matrix of BM formed with only those attributes in T has more empty rows than that matrix formed with attributes in $T \cup \lbrace x_i \rbrace$.
-	\end{definition}	
-	
-	First introduced for the CT\_EXT algorithm, Proposition~\ref{prop:contrib} was stated and proved in~\cite{Sanchez10}.
-	
-	\begin{proposition}\label{prop:contrib} 
-		Given $T \subseteq R$ and  $x_i \in R$ such that $x_i \notin T$. If $x_i$ does not contribute to T, then $T\cup\{x_i\}$ cannot be a subset of any typical testor.
-	\end{proposition}
-	
-%	\begin{proposition}\label{prop:superset} 
-%		Given $T \subseteq R$ and $Z \subseteq R$ such that $Z \cap T = \emptyset$. If T is a testor, then $T \cup Z$ is a testor too, but it is not a typical testor.
-%	\end{proposition}
-
-	The following propositions are stated and proved in~\cite{Lias13}.
-	
-	\begin{definition}\label{def:exclusion}
-		Given $T \subseteq R$. The compatibility mask of $T$, denoted as $cm_T$, is the binary word in which the $j^{\mathit{th}}$ bit is 1 if the $j^{\mathit{th}}$ row of $BM$ has a 1 in only one of the columns corresponding to attributes in $T$, and otherwise it is 0.
+	\begin{definition}\label{def:testor}
+		$B$ is a super--reduct iff in the sub--matrix of the basic matrix formed by the columns corresponding to the attributes in $B$, there is no zero row (a row with only zeros).
 	\end{definition}
 	
-	\begin{proposition}\label{prop:exclude} 
-		Given $T \subseteq R$ and $x_i \in R$ such that $x_i \notin T$.	We denote as $c_{x_k}$ to the binary word in which the $j^{\mathit{th}}$ bit is 1 if the $j^{\mathit{th}}$ row of $BM$ has a 1 in the column corresponding to $x_k$. If $\exists x_k \in T$ such that $cm_{T \cup \lbrace x_i\rbrace} \wedge c_{x_k}=(0,...,0)$, then, $T \cup \lbrace x_i\rbrace$ cannot be a subset of any typical testor, and we will say that $x_i$ is exclusionary with $T$.
+	The attribute contribution, presented in Definition~\ref{def:contrib}, is used by Minreduct and PFRC--MiLIT. 	
+	
+	\begin{definition}\label{def:contrib}
+		Given $B \subseteq C$ and $x_i \in C$ such that $x_i \notin B$. $x_i$ contributes to $B$ iff the sub-matrix of the basic matrix formed with only those attributes in $B$ has more zero rows than that matrix formed with attributes in $B \cup \lbrace x_i \rbrace$.
+	\end{definition}	
+	
+	The pruning based on Definition~\ref{def:contrib} is supported by Proposition~\ref{prop:contrib}.
+	
+	\begin{proposition}\label{prop:contrib} 
+		Given $B \subseteq C$ and  $x_i \in C$ such that $x_i \notin B$. If $x_i$ does not contribute to $B$, then $B\cup\{x_i\}$ cannot be a subset of any reduct.
 	\end{proposition}
 	
-	\begin{proposition}\label{prop:TT} 
-		Given $T \subseteq R$ and $x_i \in R$ such that $x_i \notin T$. The subset $T \cup \lbrace x_i\rbrace$ is a typical testor iff it is a testor and $x_i$ is not exclusionary with $T$.
+	The algorithms under study search for super--reducts (testors) instead of reducts (typical testors) because of the following proposition, introduced for the first time in~\cite{Zhou2009}. This simplification reduces the cost of candidate subsets evaluations.
+	
+	\begin{proposition}\label{prop:sr} 
+		Let $B \subseteq C$, if $B$ is one of the shortest super--reducts of a basic matrix, then it is also one of the shortest reducts.
+	\end{proposition}	
+
+	MiLIT and MinReduct, as in many other algorithms for reduct (and typical testor) computation~\cite{Sanchez07,Lias13,Rodriguez2018} arrange the basic matrix for reducing the search space. The arrangement consist in moving one of the rows with the fewest number of 1's in the basic matrix to the top, and all columns in which this row has 1, are moved to the left. This arrangement reduces the attributes combinations evaluated by these algorithms which follow a traversing order that resembles the lexicographical order. The search can be stopped after all the combinations that include a column with a 1 in the first row are evaluated. For the rest of the search space, the first row is always a zero row.
+	
+	For PFRC--MiLIT the following proposition was presented:
+	
+	\begin{proposition}\label{prop:zrPrevail} 
+		Given $B \subseteq C$ and  $x_i \in C$ such that $x_i \notin B$. If there exist a zero row in the sub--matrix of the basic matrix formed by the columns in $B\cup\{x_i\}$, that is also a zero row in the sub--matrix formed by the remaining columns on the right side of $x_i$. Then $B\cup\{x_i\}$ cannot be a subset of any reduct.
 	\end{proposition}
 
-	We will refer to Proposition~\ref{prop:exclude} as exclusion evaluation. Proposition~\ref{prop:TT} expresses how to apply the exclusion evaluation for determining whether or not a subset $T$ of attributes is a typical testor.
+	Proposition~\ref{prop:exclusion} is used by MinReduct in order to avoid the unnecessary evaluation of super--sets of a reduct. If a given attribute subset does not hold this proposition, Condition~\ref{cond_2} of the reduct definition cannot be satisfied because it has excluding (redundant) attributes. The verification of Proposition~\ref{prop:exclusion} is called exclusion evaluation.
 	
-	The propositions presented in this section constitute the basis for understanding the differences between fast--BR and GCreduct. 
+	\begin{proposition}\label{prop:exclusion} 
+		Given $B \subseteq C$, if $B$ is a subset of a reduct, $\forall x_i \in B$ exists at least one row in the sub--matrix formed by the columns in $B$ that has a 1 in the column corresponding to $x_i$ and 0 in all other columns.
+	\end{proposition}
+	
 %
-\section{MLIT and Minreduct algorithms} \label{Algs}
+\section{MiLIT and Minreduct algorithms} \label{Algs}
 %
-	In this section, we present a comparison of the candidate evaluation process of fast--BR and GCreduct. We aim to provide enough elements to understand the different performance of these two algorithms for a given dataset. It is important to highlight that both algorithms operate over the basic matrix. Thus, when referring to characteristics of the basic matrix, we are indeed referring also to characteristics of the dataset from which the basic matrix was computed.
-	
-	% Explicar el pseudocódigo de ambos en terminos de complejidad
-	In GCreduct, a new candidate is generated by including a new attribute to the previous candidate. First, this new attribute is tested for contribution by using Definition~\ref{def:contrib}. This process has a time complexity $\Theta(m)$, where $m$ is the number of rows in the basic matrix. By Proposition~\ref{prop:contrib}, if the new attribute does not contribute to the candidate, this attribute is rejected. Otherwise, the candidate is evaluated for the testor condition by using Definition~\ref{def:testor}. This operation has also a time complexity $\Theta(m)$ as it was stated in~\cite{Rodriguez2018}. Then, for those candidates satisfying the testor condition, the exclusion evaluation is performed to determine whether  or not they are typical testors. This final verification is accomplished by means of Proposition~\ref{prop:TT}, and its time complexity is $\Theta(mn)$; where $n$ is the number of columns in the basic matrix.
-	
-	In fast--BR, a new candidate is also generated by including a new attribute to the previous candidate. In the same way, the first evaluation step for the candidate is the test for contribution of the new attribute, which has a time complexity $\Theta(m)$. However, for contributing candidates, the next step is the exclusion evaluation. This process is accomplished by means of Proposition~\ref{prop:exclude} and it has a time complexity $\Theta(mn)$. If the new attribute is exclusionary with the previous candidate, the attribute is rejected. Otherwise, the testor condition is verified by using Definition~\ref{def:testor}. This final process has a time complexity $\Theta(m)$. Those candidates evaluated as testors, in this candidate evaluation process, are also typical testors because of the order followed in this algorithm.
-	
-	% Hablar de las condiciones q son favorables a uno y otro desde la teoría
-	
-	In both algorithms, the candidate evaluation has a time complexity $\Theta(mn)$. Also, the total number of evaluated candidates has an exponential relation to the number of attributes in the dataset, for both algorithms. Thus, for both algorithms, the time complexity for typical testor computation is exponential. However, there are significant differences in the runtime of fast--BR and GCreduct for a given dataset. 
-	
-	The exclusion evaluation is the step with the highest time complexity in the candidate evaluation process for both algorithms. In GCreduct, this step is only executed for those candidates satisfying the testor condition, which are usually a small fraction of the total contributing candidates. In fast-BR, the exclusion evaluation is performed for every contributing candidate, which makes its candidate evaluation process more computationally expensive than GCreduct's. However, fast-BR takes advantage of this costly evaluation by discarding all the supersets of an exclusionary candidate by applying Proposition~\ref{prop:exclude}. This advantage is more effective for basic matrices with a higher density of 1's, as it was shown in~\cite{Rodriguez2018}.
+	We present here a brief description of the three algorithms under study. In the subsequent explanation, the asymptotic time complexity of each algorithm is detailed. For this purpose, the number of rows in the basic matrix is denoted by $m$, the number of columns is denoted by $n$, the number of 0's in the first row of the arranged basic matrix is denoted by $n_0$ and the length of the shortest reducts is denoted by $k$.
+%	
+\subsection{NC--MiLIT}	
 %
-\section{Comparative study} \label{evaluation}
-%
-\subsection{Complexity analysis of MinReduct}\label{complexity}
+	The key pruning goal of any algorithm designed for computing the shortest reducts consist in evaluating only attribute subsets with a length not higher than that of the shortest reducts ($k$). Unfortunately, the length of the shortest reducts cannot be known a priori. In fact, the idea of estimating by an approximate algorithm this length and then use it as a parameter for the exact algorithm computing all the shortest reducts was reported in~\cite{Lin04}.
 	
+	Both versions of the MiLIT (NC and PFRC) ensure the evaluation of only attribute subsets with a length not higher than $k$ by their traversing order. These algorithm follows a breadth-first search as it is illustrated in Table~\ref{tab:BForder} for the arranged basic matrix from Table~\ref{tab:BM}. Since the attribute combinations are evaluated in ascending order of their length, the algorithm can be stopped after the first super--reducts (testors) are found. Indeed, as it was stated before, the super--reducts found in this way are also the shortest reducts (minimum length typical testors).
+
+	\begin{table}[htb]
+		\begin{minipage}[t]{.3\linewidth}
+			\small
+			\caption{Basic matrix.}
+			\centering
+			\begin{tabular}{ccc}\label{tab:BM}
+				$x_0$ & $x_1$ & $x_2$\\
+				\hline
+				1 & 1 & 0 \\
+				1 & 0 & 1 \\
+				0 & 1 & 1 \\
+				
+			\end{tabular}     
+		\end{minipage}%
+		\begin{minipage}[t]{.3\linewidth}
+			\small
+			\caption{MiLIT.}
+			\centering
+			\begin{tabular}{ll}\label{tab:BForder}
+				 & Subset\\
+				\hline
+				1 & $\{x_0\}$ \\
+				2 & $\{x_1\}$ \\
+				3 & $\{x_0,x_1\}$ \\
+				4 & $\{x_0,x_2\}$ \\
+				5 & $\{x_1,x_2\}$ \\
+				6 & $\{x_0,x_1,x_2\}$ \\
+			\end{tabular}     
+		\end{minipage}%
+		\begin{minipage}[t]{.3\linewidth}   
+			\small
+			\caption{Minreduct.}
+			\centering
+			\begin{tabular}{ll}\label{tab:LGForder}
+				 & Subset\\
+				\hline
+				1 & $\{x_0\}$ \\
+				2 & $\{x_0,x_1\}$ \\ 
+				3 & $\{x_0,x_1,x_2\}$ \\
+				4 & $\{x_0,x_2\}$ \\
+				5 & $\{x_1\}$ \\
+				6 & $\{x_1,x_2\}$ \\
+			\end{tabular}  
+		\end{minipage}%       
+	\end{table}  
+
+	Notice from Table~\ref{tab:BForder} that the attribute subset $\{x_2\}$	is not evaluated due to the matrix arrangement described before. It should be also highlighted, that for the basic matrix from Table~\ref{tab:BM} the shortest reducts are $\{x_0,x_1\}$, $\{x_0,x_2\}$ and $\{x_1,x_2\}$, so that the last combination ($\{x_0,x_1,x_2\}$) is not evaluated.
+	
+	For each candidate subset evaluated by NC--MiLIT the super--reduct property is verified by means of Definition~\ref{def:testor}. This verification has a time cost of $\Theta(m\times k)$. The number of evaluations can be precisely determined for this algorithm.  To the number of combinations that can be generated with length lower than or equal to $k$ with the $n$ attributes (Equation~\ref{eq:nk}) we most subtract the avoided evaluations of those combinations of attributes that do not include a column with 1 in the first row (Equation~\ref{eq:n0k}).
+	
+	\begin{equation}
+	C(n,k) = \sum_{i=1}^{k} \binom{n}{i}\label{eq:nk}
+	\end{equation}
+	
+	\begin{equation}
+	C(n_0,k)= \sum_{i=1}^{\mathrm{min}(n_0,k)} \binom{n_0}{i}\label{eq:n0k}
+	\end{equation}
+	
+	Thus, the time complexity of the NC--MiLIT algorithm can be expressed by Equation~\ref{eq:complexNC}
+	
+	\begin{equation}
+	T_{NC} = \Theta\left((m\times k)\left(\sum_{i=1}^{k} \binom{n}{i} - \sum_{i=1}^{\mathrm{min}(n_0,k)} \binom{n_0}{i}\right)\right)\label{eq:complexNC}
+	\end{equation}
+%	
+\subsection{PFRC--MiLIT}	
+%
+	The PFRC--MiLIT algorithm includes the verification of contribution (Proposition~\ref{prop:contrib}) and the zero row prevalence (Proposition~\ref{prop:zrPrevail}) for each evaluated candidate. The idea is to avoid combinations that are super--sets of any candidate with a non contributing attribute or with prevalent zero rows, since they cannot form reducts. Both properties can be verified in time $\Theta(m\times k)$ which makes no difference with NC--MiLIT in terms of asymptotic complexity. This evaluation process requires, however, more computation time but a great number of candidates can be avoided in this way. In practical terms, this pruning is achieved by means of a queue data--structure in which those combinations that will not lead to a reduct are not enqueued. 
+	
+	For PFRC--MiLIT, the time complexity computed by Equation~\ref{eq:complexNC} is the upper bound. This can be expressed as it is shown in Equation~\ref{eq:complexPFRC}. The actual number of candidates evaluated depends on the distribution of data in the basic matrix. The authors of MiLIT claim that in sparse matrices these avoided combinations are very common, which seems obvious after Proposition~\ref{prop:zrPrevail}.
+	
+	\begin{equation}
+	T_{PFRC} = O\left((m\times k)\left(\sum_{i=1}^{k} \binom{n}{i} - \sum_{i=1}^{\mathrm{min}(n_0,k)} \binom{n_0}{i}\right)\right)\label{eq:complexPFRC}
+	\end{equation}
+
+%	
+\subsection{MinReduct}	
+%		
 	 According to the main pruning property of the algorithm, candidates with length higher than the shortest reduct found so far are not evaluated. If the algorithm knows the length of the shortest reducts ($k$), the upper bound of the search space ($ss$) is the number of combinations that can be generated with length lower than or equal to $k$ with the number of attributes $n$. The asymptotic limit for this number of combinations is: 
 	
 	\begin{equation}
@@ -212,33 +288,34 @@ Usually the number of rows in $DM$ ($m$) is large. In~\cite{Lazo01} a reduction 
 	
 	A more compact analysis of the algorithm's complexity was included in the section~3 of the paper in order to attend the editor comment.
 %
-\subsection{Experimental comparison}\label{Comparison}
+\section{Experimental comparison}\label{Comparison}
 %	
-	We thankfully acknowledge the authors of MLIT for sharing the source code of their Java implementations of the MLIT algorithm. 	
+	We thankfully acknowledge the authors of MiLIT for sharing the source code of their Java implementations of the MiLIT algorithm. 	
 	
 	\begin{figure}[hbt]
 		\begin{center}
 			\includegraphics[height=3in]{MinReduct_vs_milt.eps} 
 		\end{center}
-		\caption{Average runtime vs. density of 1’s for MinReduct and MLIT.}\label{fig:sinthyetic}
+		\caption{Average runtime vs. density of 1’s for MinReduct and MiLIT.}\label{fig:sinthyetic}
 	\end{figure}  		
 	
-	Figure~\ref{fig:sinthyetic} shows the average runtime for MLIT (NC and PFRC) and MinReduct as a function of the density of 1’s in the 500 synthetic basic matrices used in the paper. This experiment was carried out under the same conditions of the experiments exposed in the paper. As it can be seen in Figure~\ref{fig:sinthyetic}, MLIT was not faster than MinReduct in any case. 			
+	Figure~\ref{fig:sinthyetic} shows the average runtime for MiLIT (NC and PFRC) and MinReduct as a function of the density of 1’s in the 500 synthetic basic matrices used in the paper. This experiment was carried out under the same conditions of the experiments exposed in the paper. As it can be seen in Figure~\ref{fig:sinthyetic}, MiLIT was not faster than MinReduct in any case. 			
 	
 	\begin{table}[htb]
 		\small
 		\caption{Runtime over synthetic basic matrices.}
 		\centering
 		\begin{tabular}{lcccccccc}\label{tab:comparison}
-			Dimension & density & Len & Nsol & MinReduct & MLIT(NC) & MLIT(PFRC)\\
+			Dimension & density & Len & Nsol & MinReduct & MiLIT(NC) & MiLIT(PFRC)\\
 			\hline
 			250x600  & 0.84 & 2 &   170  &      0.269     & \textbf{0.104} &  0.127 \\
 			1500x150 & 0.75 & 4 & 228778 & \textbf{2.286} &     21.998     & 37.855 \\
 		\end{tabular}             
 	\end{table}  
 	
-	Table~\ref{tab:comparison} shows the runtime of MLIT (NC and PFRC) and MinReduct for two matrices with dimensions (rows x attributes) 250x600 and 1500x150, with densities 0.84 and 0.75 respectively. These are the last two matrices requested by the editor. For the matrix with 1200 rows and 110 attributes with density 0.33, the solution could not be obtained so far by any of the algorithms. Thus, from this basic matrix, the last columns were removed in order to obtain sub--matrices with a lower number of columns. Figure~\ref{fig:1200x110}  shows the runtime of MLIT (NC and PFRC) and MinReduct for the matrices with 1200 rows and density 0.33 with a number of columns between 30 and 54. 
+	Table~\ref{tab:comparison} shows the runtime of MiLIT (NC and PFRC) and MinReduct for two matrices with dimensions (rows x attributes) 250x600 and 1500x150, with densities 0.84 and 0.75 respectively. These are the last two matrices requested by the editor. For the matrix with 1200 rows and 110 attributes with density 0.33, the solution could not be obtained so far by any of the algorithms. Thus, from this basic matrix, the last columns were removed in order to obtain sub--matrices with a lower number of columns. Figure~\ref{fig:1200x110}  shows the runtime of MiLIT (NC and PFRC) and MinReduct for the matrices with 1200 rows and density 0.33 with a number of columns between 30 and 54. 
 	
+	%TODO arreglar el numbre de MiLIT en todas las figuras
 	\begin{figure}[hbt]
 		\begin{center}
 			\includegraphics[height=4in]{low_density_Minreduct_vs_MLIT.eps} 
@@ -246,11 +323,11 @@ Usually the number of rows in $DM$ ($m$) is large. In~\cite{Lazo01} a reduction 
 		\caption{Runtime for matrices with 1200 rows and density 0.33.}\label{fig:1200x110}
 	\end{figure}  
 	
-	As a result of these experiments carried out over 515 synthetic matrices,  MLIT (NC) was faster than MinReduct in 10 matrices. These 10 matrices have a density higher or equal to 0.6 and its runtime is below one second. The PFRC version of MLIT was faster than MinReduct in one matrix and it was never the fastest algorithm. 
+	As a result of these experiments carried out over 515 synthetic matrices,  MiLIT (NC) was faster than MinReduct in 10 matrices. These 10 matrices have a density higher or equal to 0.6 and its runtime is below one second. The PFRC version of MiLIT was faster than MinReduct in one matrix and it was never the fastest algorithm. 
 	
-	It is important to highlight that the PFRC version of MLIT performs systematically slower than the NC version in our experiments as well as in their authors' experiments.  MLIT (NC) evaluates all the combinations in the search space defined by Equation~\ref{eq:ss3} (Altough their authors refer in their paper a number of combinations equivalent to Equation~\ref{eq:ss2}) without using any pruning property. The PFRC version, on the other hand, incorporates pruning rules over the feature power set to make fewer evaluations; which seems to be no so efficient in practice. A breadth-first search for finding all the shortest reducts, as in MLIT, guarantees that no combination with length higher than $k$ is evaluated. But, as it was disused before, there is no significant advantage in having such restriction of the search space. However, applying pruning rules in a breadth-first search is less efficient in term of both: time and space, than the traditional depth-first search used in most algorithms for reduct computation. From the asymptotic complexity point of view, MinReduct (Equation~\ref{eq:T2}) is at least $k/2$ faster than MLIT (NC) \cite{Piza20}. 
+	It is important to highlight that the PFRC version of MiLIT performs systematically slower than the NC version in our experiments as well as in their authors' experiments.  MiLIT (NC) evaluates all the combinations in the search space defined by Equation~\ref{eq:ss3} (Altough their authors refer in their paper a number of combinations equivalent to Equation~\ref{eq:ss2}) without using any pruning property. The PFRC version, on the other hand, incorporates pruning rules over the feature power set to make fewer evaluations; which seems to be no so efficient in practice. A breadth-first search for finding all the shortest reducts, as in MiLIT, guarantees that no combination with length higher than $k$ is evaluated. But, as it was disused before, there is no significant advantage in having such restriction of the search space. However, applying pruning rules in a breadth-first search is less efficient in term of both: time and space, than the traditional depth-first search used in most algorithms for reduct computation. From the asymptotic complexity point of view, MinReduct (Equation~\ref{eq:T2}) is at least $k/2$ faster than MiLIT (NC) \cite{Piza20}. 
 	
-	This relation between the runtime of MinReduct and MLIT (NC) can be experimentally corroborated taking the values of $k$ from Figure~\ref{fig:n0} and the runtimes shown in Figure~\ref{fig:sinthyetic}.
+	This relation between the runtime of MinReduct and MiLIT (NC) can be experimentally corroborated taking the values of $k$ from Figure~\ref{fig:n0} and the runtimes shown in Figure~\ref{fig:sinthyetic}.
 %
 \section{Conclusions} \label{conclusions}
 %	
