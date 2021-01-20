@@ -3,11 +3,12 @@
 import commands
 
 algsDir = "/home/vladimir/VLADIMIR/VSI/Upload/Software/"
-#algs = ["MinReduct.jar","MILT.jar -alg NC"]
-algs = ["sRGA.jar","MILT.jar -alg PFRC"]
-exp_fname = "exp_30x2000_MILTnc_vs_MinReduct.csv"
+algs = ["MinReduct.jar","MinReduct.jar -max"]
+algs_labels = ["noInfo","info"]
+#algs = ["sRGA.jar","MILT.jar -alg PFRC"]
+exp_fname = "exp_30x2000_MinReduct_info_vs_noInfo.csv"
 units_folder = "/home/vladimir/VLADIMIR/VSI/Upload/Data/BM2000x30/"
-table_fname  = "/home/vladimir/VLADIMIR/VSI/Review3/Experiment/Sinteticas/BM2000x30.csv"
+table_fname  = "BM2000x30_out_join.csv"
 
 # Create output folder
 commands.getoutput("mkdir " + units_folder[0:-1] + '_out/')
@@ -18,9 +19,14 @@ f.readline() # Skipping the header
 lineas = f.readlines()
 f.close()
 unidades=[]
+lengths=[]
 
 for linea in lineas:
-   unidades.append(linea.split(',')[0])
+   values = linea.split(',')
+   unidades.append(values[0])
+   lengths.append(values[8])
+   #print (values[0], values[8])
+
 
 # Load experiment order
 expf = file(exp_fname,'r')
@@ -32,11 +38,15 @@ for exp in exp_list:#[1055:]:
     data = exp.split(',')
     
     unidad = unidades[int(data[0])]
-    alg = algs[int(data[1])]
+    reductSize = lengths[int(data[0])]
+    alg_num = int(data[1])
+    alg = algs[alg_num]
+    if (alg_num == 1):
+       alg += " %s" % reductSize
     repeat = int(data[2])
     comando = "java -jar " + algsDir +alg + " " + units_folder + unidad
     
-    of_name = units_folder[0:-1] + '_out/'+ unidad.split('.')[0]+'_'+alg.split('.')[0]+'_'+str(repeat)+'.txt'
+    of_name = units_folder[0:-1] + '_out/'+ unidad.split('.')[0]+'_'+algs_labels[alg_num]+'_'+str(repeat)+'.txt'
     #print comando
     ofile = file(of_name,'w')    
     ofile.write(commands.getoutput(comando))

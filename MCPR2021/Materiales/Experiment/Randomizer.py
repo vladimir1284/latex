@@ -3,8 +3,8 @@
 
 import numpy as np
 
-experiment = "exp_30x2000_MILTnc_vs_MinReduct"
-repeats = 1
+experiment = "exp_30x2000_MinReduct_info_vs_noInfo"
+repeats = 3
 units   = 500
 algs    = 2
 
